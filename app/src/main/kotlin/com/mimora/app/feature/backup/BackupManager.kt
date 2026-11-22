@@ -17,6 +17,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.security.MessageDigest
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -49,9 +50,28 @@ class BackupManager(
     companion object {
         private val BACKUP_FILE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss")
 
-        /** Cloud backups carry the exact sync time so each overwrite is identifiable. */
+        /** Human-readable name used for local SAF exports. */
         internal fun backupFileName(now: LocalDateTime = LocalDateTime.now()): String =
             "mimora_backup_${now.format(BACKUP_FILE_TIME)}.mimora"
+
+        /**
+         * Cloud backups use one stable file per recovery phrase: any device with
+         * the same 24 words updates the same archive instead of creating a new
+         * one. Only the first 8 bytes of the SHA-256 digest are used, which is
+         * collision-resistant enough for a single user's handful of journals.
+         */
+        internal fun stableBackupFileName(recoveryPhrase: List<String>): String {
+            val normalized = recoveryPhrase.joinToString(" ").trim().lowercase()
+            val digest = MessageDigest.getInstance("SHA-256")
+                .digest(normalized.toByteArray(Charsets.UTF_8))
+            val hex = digest.joinToString("") { "%02x".format(it) }.take(16)
+            return "mimora_backup_$hex.mimora"
+        }
+
+        private fun sha256Hex(value: String): String =
+            MessageDigest.getInstance("SHA-256")
+                .digest(value.toByteArray(Charsets.UTF_8))
+                .joinToString("") { "%02x".format(it) }
     }
 
     private val backupFolder = File(context.filesDir, "backups").apply { if (!exists()) mkdirs() }
@@ -64,6 +84,38 @@ class BackupManager(
     suspend fun hasBackupContent(): Boolean = withContext(Dispatchers.IO) {
         db.getAllEntries().any { it.title.isNotBlank() || it.hasText || it.attachments.isNotEmpty() } ||
             db.getTasks().isNotEmpty()
+    }
+
+    /**
+     * Stable hash of the journal's meaningful content. Volatile fields such as
+     * `updatedAt` (rewritten by every local autosave) and the random encryption
+     * nonce are deliberately excluded, so an unchanged diary always produces
+     * the same fingerprint and no redundant cloud upload is needed.
+     */
+    suspend fun contentFingerprint(): String = withContext(Dispatchers.IO) {
+        val entries = db.getAllEntries().filter {
+            it.title.isNotBlank() || it.hasText || it.attachments.isNotEmpty()
+        }
+        val tasks = db.getTasks()
+        val canonical = StringBuilder()
+        for (e in entries.sortedBy { it.date.toEpochDay() }) {
+            canonical.append("E|").append(e.id).append('|').append(e.date).append('|')
+                .append(e.title).append('|').append(e.content).append('|')
+                .append(e.isFavorite).append('\n')
+            for (a in e.attachments.sortedBy { it.id }) {
+                val file = File(a.filePath)
+                val mediaState = if (file.exists()) "${file.length()}:${file.lastModified()}" else "missing"
+                canonical.append("A|").append(a.id).append('|').append(a.type).append('|')
+                    .append(file.name).append('|').append(a.durationSeconds).append('|')
+                    .append(mediaState).append('\n')
+            }
+        }
+        for (t in tasks.sortedBy { it.id }) {
+            canonical.append("T|").append(t.id).append('|').append(t.title).append('|')
+                .append(t.description).append('|').append(t.dueDate).append('|')
+                .append(t.reminderTime).append('|').append(t.isCompleted).append('\n')
+        }
+        sha256Hex(canonical.toString())
     }
 
     /**
@@ -305,11 +357,10 @@ class BackupManager(
      */
     suspend fun uploadToGoogleDriveApi(
         recoveryPhrase: List<String>,
-        authToken: String,
-        fileName: String = backupFileName()
+        authToken: String
     ): Result<GoogleDriveFile> {
         val backupBytes = createEncryptedBackup(recoveryPhrase)
-        return googleDriveApi.uploadBackup(authToken, fileName, backupBytes)
+        return googleDriveApi.uploadBackup(authToken, stableBackupFileName(recoveryPhrase), backupBytes)
     }
 
     suspend fun listGoogleDriveBackups(authToken: String): Result<List<GoogleDriveFile>> {

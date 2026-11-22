@@ -20,8 +20,8 @@ android {
     applicationId = "com.mimora.app"
     minSdk = 26
     targetSdk = 37
-    versionCode = 9
-    versionName = "1.8.0"
+    versionCode = 10
+    versionName = "1.8.1"
   }
 
   signingConfigs {

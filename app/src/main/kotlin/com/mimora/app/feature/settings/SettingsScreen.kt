@@ -69,6 +69,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mimora.app.R
 import com.mimora.app.core.model.DateRules
 import com.mimora.app.data.preferences.ThemeMode
+import com.mimora.app.design.DriveStatusIndicator
 import com.mimora.app.design.MimoraShapes
 import com.mimora.app.design.MimoraSpacing
 import com.mimora.app.design.WritingCanvasTheme
@@ -177,11 +178,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    StitchPill(
-                        text = "Vault Active",
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                    DriveStatusIndicator(connected = prefs.googleDriveConnected)
                     topBarActions()
                 }
             }
@@ -229,11 +226,7 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
-                            StitchPill(
-                                text = "OFFLINE",
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
+                            DriveStatusIndicator(connected = prefs.googleDriveConnected)
                         }
                         Text(
                             text = if (prefs.hasAcknowledgedKeyWarning) {
@@ -561,9 +554,8 @@ fun SettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Icon(
-                            painter = painterResource(R.drawable.ic_cloud_backup),
+                            painter = painterResource(R.drawable.ic_google_drive),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
                         Column(modifier = Modifier.weight(1f)) {
@@ -608,9 +600,8 @@ fun SettingsScreen(
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.ic_cloud_backup),
+                                        painter = painterResource(R.drawable.ic_google_drive),
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Text(
@@ -619,13 +610,7 @@ fun SettingsScreen(
                                         fontWeight = FontWeight.SemiBold
                                     )
                                 }
-                                if (prefs.googleDriveConnected) {
-                                    StitchPill(
-                                        text = "Connected",
-                                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
-                                }
+                                DriveStatusIndicator(connected = prefs.googleDriveConnected)
                             }
 
                             Spacer(modifier = Modifier.height(4.dp))
@@ -654,7 +639,7 @@ fun SettingsScreen(
                                     enabled = !uiState.isProcessingBackup
                                 ) {
                                     Icon(
-                                        painter = painterResource(R.drawable.ic_cloud_backup),
+                                        painter = painterResource(R.drawable.ic_google_drive),
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp)
                                     )

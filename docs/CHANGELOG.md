@@ -1,5 +1,15 @@
 # MIMORA Changelog
 
+## [1.8.1] - 2026-11-22
+
+### Fixed
+- **No more duplicate cloud backups**: each 24-word recovery phrase now owns exactly one encrypted archive in Google Drive. Saving with the same phrase updates that file in place instead of creating a new one; legacy timestamped duplicates left by earlier versions are cleaned up automatically.
+- **No redundant uploads**: a content fingerprint plus the backup file name are remembered after each successful sync. Saving or syncing an unchanged diary now reports "Already up to date" instead of re-uploading.
+- **Explicit saves only**: typing still auto-saves locally, but a cloud backup is created only by the diary's **Save Diary** button or the Settings **Sync now** action.
+
+### Added
+- **Google Drive status indicator**: a Drive icon with a green **Online** dot (connected) or red **Offline** dot (not connected) now appears in the title bar, on the Personal Journal card, and in the cloud-sync section. Google Drive icons also replace the generic cloud icons in the backup/sync controls.
+
 ## [1.8.0] - 2026-11-22
 
 ### Added

@@ -39,12 +39,14 @@ class GoogleDriveBackupApi {
                 "&q=$encodedQuery&fields=$encodedFields&orderBy=$encodedOrderBy"
         }
 
-        /**
-         * Create uses POST, overwrite uses PATCH with the existing file id.
-         */
+        /** Create uses POST; updating an existing file uses PATCH with its id. */
         internal fun buildUploadUrl(fileId: String? = null): String =
             DRIVE_UPLOAD_BASE + (fileId?.let { "/${encode(it)}" } ?: "") +
                 "?uploadType=multipart&fields=$FIELDS"
+
+        /** Stable per-recovery-phrase names are 16 lowercase hex characters. */
+        internal fun isStableBackupName(name: String): Boolean =
+            name.matches(Regex("mimora_backup_[0-9a-f]{16}\\.mimora"))
 
         /**
          * Percent-encodes a query value using %20 for spaces. URLEncoder emits '+',
@@ -57,9 +59,10 @@ class GoogleDriveBackupApi {
     private class DriveHttpException(val code: Int, message: String) : Exception(message)
 
     /**
-     * Synchronises a single encrypted .mimora archive in the hidden appDataFolder.
-     * An existing backup is overwritten in place (PATCH) so a failed upload never
-     * destroys the last good copy; copies left by older versions are removed.
+     * Keeps one archive per recovery phrase. The file with the exact stable name
+     * is updated in place (PATCH); a missing file is created with POST. Legacy
+     * timestamped files left by older versions are removed after a successful
+     * write so no duplicates remain.
      */
     suspend fun uploadBackup(
         authToken: String,
@@ -67,15 +70,14 @@ class GoogleDriveBackupApi {
         backupBytes: ByteArray
     ): Result<GoogleDriveFile> = withContext(Dispatchers.IO) {
         try {
-            val existingBackups = listBackups(authToken).getOrThrow()
-            val existing = existingBackups.firstOrNull()
+            val existing = listBackups(authToken).getOrThrow()
+            val match = existing.firstOrNull { it.name == fileName }
 
-            val uploaded = if (existing == null) {
+            val uploaded = if (match == null) {
                 performUpload(authToken, null, fileName, backupBytes)
             } else {
-                val updated = performUpload(authToken, existing.id, fileName, backupBytes)
+                val updated = performUpload(authToken, match.id, fileName, backupBytes)
                 if (updated.isFailure && (updated.exceptionOrNull() as? DriveHttpException)?.code == 404) {
-                    // The file vanished between list and update; recreate it.
                     performUpload(authToken, null, fileName, backupBytes)
                 } else {
                     updated
@@ -83,7 +85,12 @@ class GoogleDriveBackupApi {
             }
 
             if (uploaded.isSuccess) {
-                existingBackups.drop(1).forEach { legacy -> deleteBackup(authToken, legacy.id) }
+                val keptId = uploaded.getOrThrow().id
+                // Drop legacy timestamped files and any second copy of this stable
+                // name, but preserve archives belonging to other recovery phrases.
+                existing.filterNot { it.id == keptId }
+                    .filter { it.name == fileName || !isStableBackupName(it.name) }
+                    .forEach { deleteBackup(authToken, it.id) }
             }
             uploaded
         } catch (e: Exception) {
@@ -195,10 +202,7 @@ class GoogleDriveBackupApi {
         }
     }
 
-    /**
-     * Deletes one backup from appDataFolder. Used to clean up duplicates created
-     * before sync started overwriting a single file.
-     */
+    /** Deletes one legacy duplicate from appDataFolder after a successful sync. */
     suspend fun deleteBackup(authToken: String, fileId: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val conn = (URL("$DRIVE_API_BASE/${encode(fileId)}").openConnection() as HttpURLConnection).apply {

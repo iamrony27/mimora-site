@@ -31,6 +31,8 @@ data class UserPreferences(
     val fontSizeSp: Int = 16,
     val autoBackupEnabled: Boolean = false,
     val lastBackupTimestamp: Long = 0L,
+    /** Fingerprint of the last successfully backed-up content; empty means never backed up. */
+    val lastBackupFingerprint: String = "",
     val masterRecoveryPhrase: String = "",
     val hasAcknowledgedKeyWarning: Boolean = false,
     val hasCompletedOnboarding: Boolean = false,
@@ -55,6 +57,7 @@ class UserPreferencesRepository(
         val FONT_SIZE_SP = intPreferencesKey("font_size_sp")
         val AUTO_BACKUP_ENABLED = booleanPreferencesKey("auto_backup_enabled")
         val LAST_BACKUP_TIMESTAMP = longPreferencesKey("last_backup_timestamp")
+        val LAST_BACKUP_FINGERPRINT = stringPreferencesKey("last_backup_fingerprint")
         val MASTER_RECOVERY_PHRASE = stringPreferencesKey("master_recovery_phrase")
         val KEY_WARNING_ACKNOWLEDGED = booleanPreferencesKey("key_warning_acknowledged")
         val HAS_COMPLETED_ONBOARDING = booleanPreferencesKey("has_completed_onboarding")
@@ -82,6 +85,7 @@ class UserPreferencesRepository(
             fontSizeSp = preferences[PreferencesKeys.FONT_SIZE_SP] ?: 16,
             autoBackupEnabled = preferences[PreferencesKeys.AUTO_BACKUP_ENABLED] ?: false,
             lastBackupTimestamp = preferences[PreferencesKeys.LAST_BACKUP_TIMESTAMP] ?: 0L,
+            lastBackupFingerprint = preferences[PreferencesKeys.LAST_BACKUP_FINGERPRINT] ?: "",
             masterRecoveryPhrase = preferences[PreferencesKeys.MASTER_RECOVERY_PHRASE]?.let { stored ->
                 // Legacy installs wrote the phrase in plaintext (space-separated words).
                 // New stores are Keystore-encrypted Base64 with no spaces.
@@ -147,6 +151,12 @@ class UserPreferencesRepository(
     suspend fun setLastBackupTimestamp(timestamp: Long) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.LAST_BACKUP_TIMESTAMP] = timestamp
+        }
+    }
+
+    suspend fun setLastBackupFingerprint(fingerprint: String) {
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.LAST_BACKUP_FINGERPRINT] = fingerprint
         }
     }
 

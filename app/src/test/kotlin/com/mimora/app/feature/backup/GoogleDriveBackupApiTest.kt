@@ -48,15 +48,33 @@ class GoogleDriveBackupApiTest {
     }
 
     @Test
-    fun `overwrite upload targets the existing file id`() {
-        assertTrue(GoogleDriveBackupApi.buildUploadUrl("file-123").contains("/file-123?uploadType=multipart"))
+    fun `update upload targets the existing file with PATCH`() {
+        val url = GoogleDriveBackupApi.buildUploadUrl("file-123")
+        assertTrue("overwrite must target the existing file id", url.contains("/files/file-123?"))
+        assertTrue("PATCH uploads still use multipart", url.endsWith("?uploadType=multipart&fields=id,name,size,modifiedTime"))
     }
 
     @Test
-    fun `cloud backup name includes the exact sync time`() {
+    fun `legacy duplicate names are recognised for cleanup`() {
+        assertTrue(GoogleDriveBackupApi.isStableBackupName("mimora_backup_0123456789abcdef.mimora"))
+        assertTrue(!GoogleDriveBackupApi.isStableBackupName("mimora_backup_2026-11-22_13-45-09.mimora"))
+    }
+
+    @Test
+    fun `cloud backup name includes the exact creation time for SAF exports`() {
         assertEquals(
             "mimora_backup_2026-11-22_13-45-09.mimora",
             BackupManager.backupFileName(LocalDateTime.of(2026, 11, 22, 13, 45, 9))
         )
+    }
+
+    @Test
+    fun `stable cloud name is derived only from the recovery phrase`() {
+        val phrase = listOf("alpha", "beta", "gamma")
+        val name = BackupManager.stableBackupFileName(phrase)
+        assertTrue(name.matches(Regex("mimora_backup_[0-9a-f]{16}\\.mimora")))
+        assertEquals(name, BackupManager.stableBackupFileName(phrase))
+        assertEquals(name, BackupManager.stableBackupFileName(phrase.map { it.uppercase() }))
+        assertTrue(name != BackupManager.stableBackupFileName(phrase + "delta"))
     }
 }

@@ -133,6 +133,49 @@ fun SaveStateIndicator(
 }
 
 /**
+ * Google Drive connection status pill: Drive icon plus a green (connected) or
+ * red (not connected) dot. Used in the title bar and the Personal Journal card.
+ */
+@Composable
+fun DriveStatusIndicator(
+    connected: Boolean,
+    modifier: Modifier = Modifier,
+    showLabel: Boolean = true
+) {
+    val label = if (connected) "Online" else "Offline"
+    val dotColor = if (connected) Color(0xFF10B981) else Color(0xFFEF4444)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = modifier
+            .clip(MimoraShapes.full)
+            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.65f))
+            .padding(horizontal = 10.dp, vertical = 5.dp)
+            .semantics { contentDescription = "Google Drive $label" }
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_google_drive),
+            contentDescription = null,
+            modifier = Modifier.size(14.dp)
+        )
+        Box(
+            modifier = Modifier
+                .size(7.dp)
+                .clip(CircleShape)
+                .background(dotColor)
+        )
+        if (showLabel) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium
+            )
+        }
+    }
+}
+
+/**
  * Accessible Icon Button ensuring minimum 48dp touch target size.
  */
 @Composable

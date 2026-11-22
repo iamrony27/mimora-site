@@ -93,8 +93,6 @@ import com.mimora.app.feature.statistics.StatisticsScreen
 import com.mimora.app.feature.statistics.StatisticsViewModel
 import com.mimora.app.feature.tasks.TasksScreen
 import com.mimora.app.feature.tasks.TasksViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
@@ -143,23 +141,19 @@ fun MainNavigation(
     val onDriveAction = rememberDriveAuthorizer(settingsViewModel)
     val settingsUiState by settingsViewModel.uiState.collectAsState()
 
-    // Every successful, non-blank autosave schedules a Drive sync. The short
-    // debounce collapses a burst of typing while still syncing each saved entry.
-    var syncDebounceJob by remember { mutableStateOf<Job?>(null) }
-    val onEntrySaved: () -> Unit = {
+    // Cloud backup is explicit: only tapping the diary's Save button requests a
+    // sync. Local autosave never calls this, and the upload layer skips unchanged
+    // content, so typing cannot create duplicates or overwrite the last good backup.
+    val onSaveRequested: () -> Unit = {
         val state = settingsViewModel.uiState.value
         if (state.preferences.googleDriveConnected && !state.isProcessingBackup) {
-            syncDebounceJob?.cancel()
-            syncDebounceJob = appScope.launch {
-                delay(600)
-                onDriveAction(DriveAction.Sync)
-            }
+            onDriveAction(DriveAction.Sync)
         }
         Unit
     }
 
     val homeViewModel: HomeViewModel = viewModel {
-        HomeViewModel(container.diaryRepository, container.mediaRepository, onEntrySaved)
+        HomeViewModel(container.diaryRepository, container.mediaRepository, onSaveRequested)
     }
     val calendarViewModel: CalendarViewModel = viewModel {
         CalendarViewModel(container.diaryRepository)
@@ -299,6 +293,7 @@ fun MainNavigation(
                                     viewModel = homeViewModel,
                                     writingTheme = writingTheme,
                                     isDarkTheme = isDarkTheme,
+                                    googleDriveConnected = preferences.googleDriveConnected,
                                     topBarActions = topBarActions,
                                     onRequestSecureAction = requestSecureAction
                                 )

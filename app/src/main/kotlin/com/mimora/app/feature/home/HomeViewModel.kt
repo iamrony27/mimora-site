@@ -35,8 +35,8 @@ data class HomeUiState(
 class HomeViewModel(
     private val diaryRepository: DiaryRepository,
     private val mediaRepository: MediaRepository,
-    /** Notified after every successful, non-blank save so cloud sync can follow. */
-    private val onEntrySaved: () -> Unit = {}
+    /** Notified only when the user explicitly taps Save, so cloud backup is user-controlled. */
+    private val onSaveRequested: () -> Unit = {}
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -149,23 +149,43 @@ class HomeViewModel(
     private fun isMeaningful(entry: DiaryEntry): Boolean =
         entry.title.isNotBlank() || entry.hasText || entry.attachments.isNotEmpty()
 
-    /** Cancels the debounce and writes the current draft immediately. */
-    private suspend fun flushPendingSave() {
+    /**
+     * Cancels the debounce and writes the current draft immediately.
+     * Returns true when the draft is safely persisted (or nothing was pending).
+     */
+    private suspend fun flushPendingSave(): Boolean {
         autosaveJob?.cancel()
         autosaveJob = null
-        if (!hasUnsavedEdits) return
+        if (!hasUnsavedEdits) return true
         val state = _uiState.value
         val existing = currentEntry
         val updated = buildEntry(state, existing)
         hasUnsavedEdits = false
         if (isMeaningful(updated)) {
-            try {
+            return try {
                 diaryRepository.saveEntry(updated)
                 currentEntry = updated
-                onEntrySaved()
+                true
             } catch (_: Exception) {
                 hasUnsavedEdits = true
+                false
             }
+        }
+        return true
+    }
+
+    /**
+     * Explicit save action from the diary's Save button. Persists the current
+     * draft locally and requests exactly one cloud backup snapshot. Typing alone
+     * never triggers this path, so earlier backups are never touched implicitly.
+     */
+    fun saveNow() {
+        viewModelScope.launch {
+            val saved = flushPendingSave()
+            _uiState.value = _uiState.value.copy(
+                saveState = if (saved) SaveState.SAVED else SaveState.ERROR
+            )
+            if (saved) onSaveRequested()
         }
     }
 
@@ -187,7 +207,6 @@ class HomeViewModel(
                     diaryRepository.saveEntry(updatedEntry)
                     currentEntry = updatedEntry
                     _uiState.value = _uiState.value.copy(saveState = SaveState.SAVED)
-                    onEntrySaved()
                 } else {
                     hasUnsavedEdits = false
                     _uiState.value = _uiState.value.copy(saveState = SaveState.IDLE)

@@ -80,6 +80,7 @@ import com.mimora.app.core.model.MediaType
 import com.mimora.app.data.repository.PlaybackState
 import com.mimora.app.data.repository.RecordingState
 import com.mimora.app.design.DailyMood
+import com.mimora.app.design.DriveStatusIndicator
 import com.mimora.app.design.MimoraIconButton
 import com.mimora.app.design.MimoraShapes
 import com.mimora.app.design.MimoraSpacing
@@ -100,6 +101,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     writingTheme: WritingCanvasTheme = WritingCanvasTheme.LAVENDER,
     isDarkTheme: Boolean = false,
+    googleDriveConnected: Boolean = false,
     topBarActions: @Composable () -> Unit = {},
     onRequestSecureAction: (String, String, () -> Unit) -> Unit = { _, _, _ -> }
 ) {
@@ -292,32 +294,8 @@ fun HomeScreen(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                // Private Vault pill
-                Box(
-                    modifier = Modifier
-                        .clip(MimoraShapes.full)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f))
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary)
-                        )
-                        Text(
-                            text = "Vault Active",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
+                // Google Drive connection status (green online / red offline).
+                DriveStatusIndicator(connected = googleDriveConnected)
                 topBarActions()
             }
         }
@@ -572,6 +550,39 @@ fun HomeScreen(
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(MimoraSpacing.medium))
+
+                // --- EXPLICIT SAVE: persists the draft and creates one new,
+                // timestamped backup. Typing alone never triggers a backup. ---
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(MimoraShapes.medium)
+                        .background(MaterialTheme.colorScheme.primary)
+                        .clickable { viewModel.saveNow() }
+                        .padding(vertical = 12.dp)
+                        .semantics { contentDescription = "Save diary" },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_cloud_backup),
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Text(
+                            text = "Save Diary",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }

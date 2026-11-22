@@ -506,21 +506,31 @@ class SettingsViewModel(
                 )
                 return@launch
             }
-            _uiState.value = _uiState.value.copy(
-                isProcessingBackup = true,
-                syncOperation = SyncOperation.BACKUP,
-                backupMessage = "Encrypting and uploading to Google Drive..."
-            )
             try {
                 val phraseWords = ensureRecoveryPhrase()
+                val syncMarker = BackupManager.stableBackupFileName(phraseWords) +
+                    "|" + backupManager.contentFingerprint()
+                if (syncMarker == _uiState.value.preferences.lastBackupFingerprint) {
+                    _uiState.value = _uiState.value.copy(
+                        backupMessage = "Already up to date — no changes to back up."
+                    )
+                    return@launch
+                }
+                _uiState.value = _uiState.value.copy(
+                    isProcessingBackup = true,
+                    syncOperation = SyncOperation.BACKUP,
+                    backupMessage = "Encrypting and uploading to Google Drive..."
+                )
                 val result = backupManager.uploadToGoogleDriveApi(phraseWords, accessToken)
                 if (result.isSuccess) {
                     val file = result.getOrThrow()
-                    preferencesRepository.setLastBackupTimestamp(System.currentTimeMillis())
+                    val now = System.currentTimeMillis()
+                    preferencesRepository.setLastBackupTimestamp(now)
+                    preferencesRepository.setLastBackupFingerprint(syncMarker)
                     _uiState.value = _uiState.value.copy(
                         isProcessingBackup = false,
                         syncOperation = SyncOperation.IDLE,
-                        backupMessage = "Uploaded '${file.name}' (${file.sizeBytes} bytes) to Google Drive."
+                        backupMessage = "Updated '${file.name}' (${file.sizeBytes} bytes) in Google Drive."
                     )
                     fetchGoogleDriveApiBackups(accessToken)
                 } else {

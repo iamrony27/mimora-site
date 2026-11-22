@@ -66,7 +66,9 @@ MIMORA provides an optional, privacy-respecting backup mechanism that packages a
 
 ### Drive API details:
 - New uploads set `parents: ["appDataFolder"]`.
-- Sync keeps exactly one archive: it lists existing backups, overwrites the newest one in place with `PATCH .../upload/drive/v3/files/{id}?uploadType=multipart`, and deletes any duplicates left by older versions. The filename is `mimora_backup_yyyy-MM-dd_HH-mm-ss.mimora`, so the last sync time is visible in the file name and in the restore list.
+- Cloud storage uses **one archive per recovery phrase**. The file name is `mimora_backup_<16 hex>.mimora`, derived from the first 8 bytes of the SHA-256 digest of the 24-word key. The same key always targets the same file, so a second device with the same phrase updates that archive rather than creating a duplicate.
+- When the stable file exists it is updated in place with `PATCH .../upload/drive/v3/files/{id}?uploadType=multipart`; when it is missing it is created with `POST .../upload/drive/v3/files?uploadType=multipart`. After a successful upload, legacy timestamped files and other duplicates are deleted; other phrases' stable files are preserved.
+- Typing only auto-saves locally. A cloud backup is created only when the diary's **Save Diary** button is tapped (or the manual Backup action in Settings). If the journal has not changed since the last successful upload, no request is sent and the app reports "Already up to date". A content fingerprint (excluding volatile `updatedAt` values and encryption nonces) plus the stable file name decide whether an update is needed.
 - Listings use `spaces=appDataFolder` and `orderBy=modifiedTime desc`.
 - Files in `appDataFolder` are hidden from the Google Drive UI, are scoped to one Google account, and count toward that account's storage quota. Because they are hidden, a user cannot delete them from the Drive app; deleting them requires `files.delete` from the app or revoking access.
 
