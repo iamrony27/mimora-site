@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MIMORA</string>
+    <string name="app_subtitle">ব্যক্তিগত ডায়েরি ও স্মৃতি পত্রিকা</string>
+
+    <!-- Navigation -->
+    <string name="nav_diary">ডায়েরি</string>
+    <string name="nav_calendar">ক্যালেন্ডার</string>
+    <string name="nav_tasks">কাজ</string>
+    <string name="nav_statistics">পরিসংখ্যান</string>
+    <string name="nav_settings">সেটিংস</string>
+
+    <!-- Diary / Home -->
+    <string name="diary_title_placeholder">শিরোনাম (ঐচ্ছিক)</string>
+    <string name="diary_content_placeholder">আজ আপনার মনে কী আছে? শান্তভাবে লিখুন…</string>
+    <string name="today">আজ</string>
+    <string name="go_to_today">আজকে যান</string>
+    <string name="saving">সংরক্ষণ করা হচ্ছে…</string>
+    <string name="saved">সংরক্ষিত</string>
+    <string name="save_error">সংরক্ষণ ত্রুটি</string>
+    <string name="attachments_header">সংযুক্তি</string>
+
+    <!-- Media -->
+    <string name="record_voice_note">ভয়েস নোট রেকর্ড করুন</string>
+    <string name="stop_recording">রেকর্ডিং বন্ধ করুন</string>
+    <string name="cancel_recording">রেকর্ডিং বাতিল করুন</string>
+    <string name="recording_in_progress">রেকর্ডিং চলছে %1$s</string>
+    <string name="pick_photo">গ্যালারি থেকে ছবি নির্বাচন করুন</string>
+    <string name="take_photo">ক্যামেরা দিয়ে ছবি তুলুন</string>
+    <string name="play_voice_note">ভয়েস নোট চালান</string>
+    <string name="stop_voice_note">ভয়েস নোট বন্ধ করুন</string>
+
+    <!-- Calendar & Memories -->
+    <string name="on_this_day_title">আজকের এই দিনে</string>
+    <string name="years_ago_today">%1$d বছর আগের আজকের দিনে</string>
+    <string name="one_year_ago_today">১ বছর আগের আজকের দিনে</string>
+    <string name="entries_in_month">%1$s মাসের এন্ট্রি সমূহ (%2$d)</string>
+    <string name="no_entries_month">এই মাসের জন্য কোনো ডায়েরি এন্ট্রি নেই।</string>
+
+    <!-- Tasks -->
+    <string name="tasks_title">ব্যক্তিগত কাজ ও অনুস্মারক</string>
+    <string name="tasks_pending">অপেক্ষমান (%1$d)</string>
+    <string name="tasks_completed">সম্পন্ন (%1$d)</string>
+    <string name="no_pending_tasks">কোনো কাজ অপেক্ষমান নেই। একটি শান্তিপূর্ণ দিন!</string>
+    <string name="add_new_task">নতুন ব্যক্তিগত কাজ</string>
+    <string name="task_title_label">কাজের শিরোনাম</string>
+    <string name="task_notes_label">নোট (ঐচ্ছিক)</string>
+    <string name="task_due_today">আজকের নির্ধারিত তারিখ নির্বাচন করুন</string>
+    <string name="action_create">তৈরি করুন</string>
+    <string name="action_cancel">বাতিল</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">কার্যকলাপ ও লেখার পরিসংখ্যান</string>
+    <string name="stats_streak_title">বর্তমান লেখার ধারাবাহিকতা</string>
+    <string name="stats_longest_streak">দীর্ঘতম ধারাবাহিকতা: %1$d দিন</string>
+    <string name="stats_total_entries">মোট এন্ট্রি</string>
+    <string name="stats_writing_days">লেখার দিন</string>
+    <string name="stats_photos_attached">সংযুক্ত ছবি</string>
+    <string name="stats_voice_notes">ভয়েস নোট</string>
+    <string name="stats_monthly_activity">মাসিক কার্যকলাপ</string>
+
+    <!-- Settings -->
+    <string name="settings_title">সেটিংস ও ব্যক্তিগতকরণ</string>
+    <string name="settings_appearance">চেহারা ও থিম</string>
+    <string name="settings_theme_mode">থিম মোড</string>
+    <string name="settings_seasonal_background">ঋতুভিত্তিক লেখার পটভূমি</string>
+    <string name="settings_language">ভাষা ও স্থানীয়করণ</string>
+    <string name="settings_security">নিরাপত্তা ও গোপনীয়তা</string>
+    <string name="settings_app_lock">অ্যাপ লক (পিন)</string>
+    <string name="settings_app_lock_desc">ডায়েরি এন্ট্রি খুলতে পিন আবশ্যক করুন</string>
+    <string name="settings_backup_title">এনক্রিপ্ট করা ব্যাকআপ ও পুনরুদ্ধার</string>
+    <string name="settings_recovery_phrase">২৪-শব্দের পুনরুদ্ধার বাক্যাংশ</string>
+    <string name="settings_recovery_phrase_desc">ব্যাকআপের এনক্রিপশন চাবি বের করার জন্য আপনার ব্যক্তিগত মাস্টার কি। এটি কখনই কারো সাথে শেয়ার করবেন না।</string>
+    <string name="settings_create_backup">এনক্রিপ্ট করা ব্যাকআপ তৈরি করুন</string>
+    <string name="settings_cloud_backup">গুগল ড্রাইভ ক্লাউড ব্যাকআপ</string>
+</resources>

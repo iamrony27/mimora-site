@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Solid white silhouette: required for a status-bar notification icon. -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,2a1.6,1.6 0 0,1 1.6,1.6v0.5a6.4,6.4 0 0,1 4.8,6.2v3.6l1.7,2.6a1,1 0 0,1 -0.84,1.55H5.74a1,1 0 0,1 -0.84,-1.55l1.7,-2.6v-3.6a6.4,6.4 0 0,1 4.8,-6.2v-0.5A1.6,1.6 0 0,1 12,2zM9.8,19h4.4a2.2,2.2 0 0,1 -4.4,0z" />
+</vector>

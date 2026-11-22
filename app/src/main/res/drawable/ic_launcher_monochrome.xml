@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group>
+        <!-- Journal/Diary Body -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF000000"
+            android:strokeWidth="3"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M37,30 h26 a5,5 0 0 1 5,5 v38 a5,5 0 0 1 -5,5 h-26 a4,4 0 0 1 -4,-4 v-40 a4,4 0 0 1 4,-4 z" />
+
+        <!-- Diary Spine Accent -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF000000"
+            android:strokeWidth="2.5"
+            android:strokeLineCap="round"
+            android:pathData="M41,30 v44" />
+
+        <!-- Bookmark Ribbon -->
+        <path
+            android:fillColor="#FF000000"
+            android:pathData="M45,30 v14 l3,-3 l3,3 v-14 z" />
+
+        <!-- Memory Journal Lines -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF000000"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:pathData="M52,38 h11 M46,46 h17 M46,54 h10" />
+
+        <!-- Cloud Outline -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF000000"
+            android:strokeWidth="2.5"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M55,73 h17 a5.5,5.5 0 0 0 0.7,-10.9 a7,7 0 0 0 -12.7,-2 a5,5 0 0 0 -5,12.9 z" />
+
+        <!-- Cloud Upload Arrow -->
+        <path
+            android:fillColor="#00000000"
+            android:strokeColor="#FF000000"
+            android:strokeWidth="2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M63.5,70 v-6 M61,66.5 l2.5,-2.5 l2.5,2.5" />
+    </group>
+</vector>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MIMORA</string>
+    <string name="app_subtitle">निजी व्यक्तिगत डायरी और स्मृति पत्रिका</string>
+
+    <!-- Navigation -->
+    <string name="nav_diary">डायरी</string>
+    <string name="nav_calendar">कैलेंडर</string>
+    <string name="nav_tasks">कार्य</string>
+    <string name="nav_statistics">आंकड़े</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <!-- Diary / Home -->
+    <string name="diary_title_placeholder">शीर्षक (वैकल्पिक)</string>
+    <string name="diary_content_placeholder">आज आपके मन में क्या है? शांति से लिखें…</string>
+    <string name="today">आज</string>
+    <string name="go_to_today">आज पर जाएं</string>
+    <string name="saving">सहेजा जा रहा है…</string>
+    <string name="saved">सहेजा गया</string>
+    <string name="save_error">सहेजने में त्रुटि</string>
+    <string name="attachments_header">संलग्नक</string>
+
+    <!-- Media -->
+    <string name="record_voice_note">वॉइस नोट रिकॉर्ड करें</string>
+    <string name="stop_recording">रिकॉर्डिंग रोकें</string>
+    <string name="cancel_recording">रिकॉर्डिंग रद्द करें</string>
+    <string name="recording_in_progress">रिकॉर्डिंग %1$s</string>
+    <string name="pick_photo">गैलरी से फ़ोटो चुनें</string>
+    <string name="take_photo">कैमरे से फ़ोटो लें</string>
+    <string name="play_voice_note">वॉइस नोट चलाएं</string>
+    <string name="stop_voice_note">वॉइस नोट रोकें</string>
+
+    <!-- Calendar & Memories -->
+    <string name="on_this_day_title">आज के दिन</string>
+    <string name="years_ago_today">%1$d वर्ष पहले आज</string>
+    <string name="one_year_ago_today">1 वर्ष पहले आज</string>
+    <string name="entries_in_month">%1$s में प्रविष्टियां (%2$d)</string>
+    <string name="no_entries_month">इस महीने के लिए कोई डायरी प्रविष्टि नहीं है।</string>
+
+    <!-- Tasks -->
+    <string name="tasks_title">व्यक्तिगत कार्य और अनुस्मारक</string>
+    <string name="tasks_pending">लंबित (%1$d)</string>
+    <string name="tasks_completed">पूर्ण (%1$d)</string>
+    <string name="no_pending_tasks">कोई लंबित कार्य नहीं। शांतिपूर्ण दिन!</string>
+    <string name="add_new_task">नया व्यक्तिगत कार्य</string>
+    <string name="task_title_label">कार्य शीर्षक</string>
+    <string name="task_notes_label">नोट्स (वैकल्पिक)</string>
+    <string name="task_due_today">आज की अंतिम तिथि निर्धारित करें</string>
+    <string name="action_create">बनाएं</string>
+    <string name="action_cancel">रद्द करें</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">गतिविधि और लेखन आंकड़े</string>
+    <string name="stats_streak_title">वर्तमान लेखन सिलसिला</string>
+    <string name="stats_longest_streak">सबसे लंबा सिलसिला: %1$d दिन</string>
+    <string name="stats_total_entries">कुल प्रविष्टियां</string>
+    <string name="stats_writing_days">लेखन दिवस</string>
+    <string name="stats_photos_attached">संलग्न फ़ोटो</string>
+    <string name="stats_voice_notes">वॉइस नोट्स</string>
+    <string name="stats_monthly_activity">मासिक गतिविधि</string>
+
+    <!-- Settings -->
+    <string name="settings_title">सेटिंग्स और वैयक्तिकरण</string>
+    <string name="settings_appearance">दिखावट और थीम</string>
+    <string name="settings_theme_mode">थीम मोड</string>
+    <string name="settings_seasonal_background">मौसमी लेखन पृष्ठभूमि</string>
+    <string name="settings_language">भाषा और स्थानीयकरण</string>
+    <string name="settings_security">सुरक्षा और गोपनीयता</string>
+    <string name="settings_app_lock">ऐप लॉक (पिन)</string>
+    <string name="settings_app_lock_desc">डायरी प्रविष्टियां खोलने के लिए पिन आवश्यक करें</string>
+    <string name="settings_backup_title">एन्क्रिप्टेड बैकअप और पुनर्स्थापना</string>
+    <string name="settings_recovery_phrase">24-शब्द पुनर्प्राप्ति वाक्यांश</string>
+    <string name="settings_recovery_phrase_desc">बैकअप के लिए एन्क्रिप्शन कुंजी प्राप्त करने के लिए आपकी निजी मास्टर कुंजी। इसे कभी किसी के साथ साझा न करें।</string>
+    <string name="settings_create_backup">एन्क्रिप्टेड बैकअप बनाएं</string>
+    <string name="settings_cloud_backup">गूगल ड्राइव क्लाउड बैकअप</string>
+</resources>

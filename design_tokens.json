@@ -1,0 +1,75 @@
+{
+  "brand": "MIMORA",
+  "design_language": "Material 3 inspired, minimal, calm, single-color launcher background",
+  "launcher_icon_direction": {
+    "concept": "personal memory journal + cloud backup/sync",
+    "background": "one single solid color only",
+    "symbol": "simple high-contrast memory/journal mark with a small cloud cue",
+    "avoid": [
+      "dual-tone background",
+      "gradient",
+      "glow",
+      "glossy 3D",
+      "tiny details",
+      "text"
+    ]
+  },
+  "light": {
+    "primary": "#6750A4",
+    "on_primary": "#FFFFFF",
+    "primary_container": "#EADDFF",
+    "on_primary_container": "#21005D",
+    "secondary": "#625B71",
+    "tertiary": "#7D5260",
+    "background": "#FFFBFE",
+    "surface": "#FFFBFE",
+    "surface_variant": "#E7E0EC",
+    "on_surface": "#1D1B20",
+    "outline": "#79747E"
+  },
+  "dark": {
+    "primary": "#D0BCFF",
+    "on_primary": "#381E72",
+    "primary_container": "#4F378B",
+    "on_primary_container": "#EADDFF",
+    "secondary": "#CCC2DC",
+    "tertiary": "#EFB8C8",
+    "background": "#141218",
+    "surface": "#141218",
+    "surface_variant": "#49454F",
+    "on_surface": "#E6E1E5",
+    "outline": "#938F99"
+  },
+  "typography": {
+    "family": "Roboto",
+    "display": "32/40 Bold",
+    "headline": "24/32 SemiBold",
+    "title": "20/28 Medium",
+    "body": "16/24 Regular",
+    "label": "12/16 Medium"
+  },
+  "spacing_dp": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32
+  ],
+  "shape_dp": {
+    "small": 8,
+    "medium": 12,
+    "large": 16,
+    "extra_large": 28,
+    "full": 999
+  },
+  "navigation": [
+    "Home",
+    "Diary",
+    "Calendar",
+    "Tasks",
+    "Statistics",
+    "Settings"
+  ]
+}

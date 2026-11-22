@@ -1,0 +1,75 @@
+<resources>
+    <string name="app_name">MIMORA</string>
+    <string name="app_subtitle">Private Personal Diary &amp; Memory Journal</string>
+
+    <!-- Navigation -->
+    <string name="nav_diary">Diary</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_tasks">Tasks</string>
+    <string name="nav_statistics">Stats</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Diary / Home -->
+    <string name="diary_title_placeholder">Title (optional)</string>
+    <string name="diary_content_placeholder">What is on your mind today? Write peacefully…</string>
+    <string name="today">Today</string>
+    <string name="go_to_today">Go to Today</string>
+    <string name="saving">Saving…</string>
+    <string name="saved">Saved</string>
+    <string name="save_error">Save error</string>
+    <string name="attachments_header">Attachments</string>
+
+    <!-- Media -->
+    <string name="record_voice_note">Record Voice Note</string>
+    <string name="stop_recording">Stop Recording</string>
+    <string name="cancel_recording">Cancel Recording</string>
+    <string name="recording_in_progress">Recording %1$s</string>
+    <string name="pick_photo">Pick Photo from Gallery</string>
+    <string name="take_photo">Take Photo with Camera</string>
+    <string name="play_voice_note">Play Voice Note</string>
+    <string name="stop_voice_note">Stop Voice Note</string>
+
+    <!-- Calendar & Memories -->
+    <string name="on_this_day_title">On This Day</string>
+    <string name="years_ago_today">%1$d years ago today</string>
+    <string name="one_year_ago_today">1 year ago today</string>
+    <string name="entries_in_month">Entries in %1$s (%2$d)</string>
+    <string name="no_entries_month">No diary entries for this month.</string>
+
+    <!-- Tasks -->
+    <string name="tasks_title">Personal Tasks &amp; Reminders</string>
+    <string name="tasks_pending">Pending (%1$d)</string>
+    <string name="tasks_completed">Completed (%1$d)</string>
+    <string name="no_pending_tasks">No pending tasks. Peaceful day!</string>
+    <string name="add_new_task">New Personal Task</string>
+    <string name="task_title_label">Task Title</string>
+    <string name="task_notes_label">Notes (optional)</string>
+    <string name="task_due_today">Set due date for today</string>
+    <string name="action_create">Create</string>
+    <string name="action_cancel">Cancel</string>
+
+    <!-- Statistics -->
+    <string name="stats_title">Activity &amp; Writing Statistics</string>
+    <string name="stats_streak_title">Current Writing Streak</string>
+    <string name="stats_longest_streak">Longest streak: %1$d days</string>
+    <string name="stats_total_entries">Total Entries</string>
+    <string name="stats_writing_days">Writing Days</string>
+    <string name="stats_photos_attached">Photos Attached</string>
+    <string name="stats_voice_notes">Voice Notes</string>
+    <string name="stats_monthly_activity">Monthly Activity</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings &amp; Personalization</string>
+    <string name="settings_appearance">Appearance &amp; Theme</string>
+    <string name="settings_theme_mode">Theme Mode</string>
+    <string name="settings_seasonal_background">Seasonal Writing Background</string>
+    <string name="settings_language">Language &amp; Localization</string>
+    <string name="settings_security">Security &amp; Privacy</string>
+    <string name="settings_app_lock">App Lock (PIN)</string>
+    <string name="settings_app_lock_desc">Require PIN to open diary entries</string>
+    <string name="settings_backup_title">Encrypted Backup &amp; Restore</string>
+    <string name="settings_recovery_phrase">24-Word Recovery Phrase</string>
+    <string name="settings_recovery_phrase_desc">Your private master key used to derive encryption keys for backups. Never share this with anyone.</string>
+    <string name="settings_create_backup">Create Encrypted Backup</string>
+    <string name="settings_cloud_backup">Google Drive Cloud Backup</string>
+</resources>
