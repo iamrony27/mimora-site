@@ -417,16 +417,77 @@ class SettingsViewModel(
     }
 
     /**
-     * Called by "Create New Journal". A fresh install always gets its own
-     * cryptographically random key before onboarding is marked complete, so two
-     * devices can never share a phrase simply because they were installed alike.
+     * Onboarding "Create New Journal": mint a unique key first, then force the
+     * user through the 10-second notice + copy + confirmation save flow. The
+     * journal is not created until that flow is completed, so no one can start
+     * writing with a key they never saved.
      */
-    fun createFreshJournal(onComplete: () -> Unit) {
+    fun beginFreshJournalKeySetup() {
         viewModelScope.launch {
             val words = ensureRecoveryPhrase(forceGenerate = true)
             preferencesRepository.setKeyWarningAcknowledged(false)
+            _uiState.value = _uiState.value.copy(
+                recoveryPhraseWords = words,
+                showPrivateKeyModal = false,
+                hasCopiedPrivateKey = false,
+                hasConfirmedSavedOffline = false
+            )
+            startDisclaimerCountdown()
+        }
+    }
+
+    /** Regenerate inside the onboarding key flow and restart the notice. */
+    fun regenerateFreshJournalKey() {
+        viewModelScope.launch {
+            val words = ensureRecoveryPhrase(forceGenerate = true)
+            _uiState.value = _uiState.value.copy(
+                recoveryPhraseWords = words,
+                showPrivateKeyModal = false,
+                hasCopiedPrivateKey = false,
+                hasConfirmedSavedOffline = false
+            )
+            startDisclaimerCountdown()
+        }
+    }
+
+    /** Back out of the onboarding key flow without creating the journal. */
+    fun cancelFreshJournalKeySetup() {
+        countdownJob?.cancel()
+        _uiState.value = _uiState.value.copy(
+            showDisclaimerModal = false,
+            showPrivateKeyModal = false,
+            hasCopiedPrivateKey = false,
+            hasConfirmedSavedOffline = false
+        )
+    }
+
+    /** Reachable only after the 10s notice, Copy, and the confirmation checkbox. */
+    fun finishFreshJournalSetup(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            preferencesRepository.setKeyWarningAcknowledged(true)
             preferencesRepository.setCompletedOnboarding(true)
+            _uiState.value = _uiState.value.copy(
+                showDisclaimerModal = false,
+                showPrivateKeyModal = false
+            )
             onComplete()
+        }
+    }
+
+    /** Leave the journal session. Local diary data and Drive sign-in are kept. */
+    fun logout() {
+        countdownJob?.cancel()
+        _uiState.value = _uiState.value.copy(
+            showDisclaimerModal = false,
+            showPrivateKeyModal = false,
+            showRestoreDialog = false,
+            showGoogleDriveRestoreDialog = false,
+            isProcessingBackup = false,
+            syncOperation = SyncOperation.IDLE,
+            backupMessage = null
+        )
+        viewModelScope.launch {
+            preferencesRepository.logout()
         }
     }
 

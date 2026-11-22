@@ -44,21 +44,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mimora.app.R
 import com.mimora.app.design.MimoraShapes
 import com.mimora.app.design.MimoraSpacing
 import com.mimora.app.design.StitchPill
 import com.mimora.app.feature.backup.DriveAction
 import com.mimora.app.feature.backup.rememberDriveAuthorizer
+import com.mimora.app.feature.settings.KeySecurityDisclaimerDialog
+import com.mimora.app.feature.settings.MasterPrivateKeyDialog
 import com.mimora.app.feature.settings.SettingsViewModel
 
 @Composable
 fun OnboardingScreen(
     viewModel: SettingsViewModel,
     onOnboardingComplete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    hasExistingJournal: Boolean = false,
+    onResumeDiary: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     // Drive backups live in appDataFolder, which the system file picker cannot
     // browse. First-run restore must use the same signed-in Drive flow as Settings.
     val onDriveAction = rememberDriveAuthorizer(viewModel)
@@ -157,6 +163,62 @@ fun OnboardingScreen(
             Spacer(modifier = Modifier.height(MimoraSpacing.doubleLarge))
         }
 
+        // --- RESUME EXISTING JOURNAL (after logout) ---
+        if (hasExistingJournal) {
+            item {
+                Card(
+                    shape = MimoraShapes.card,
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(MimoraSpacing.large)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(MimoraShapes.full)
+                                    .background(MaterialTheme.colorScheme.primary),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_diary),
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Welcome Back",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = "Continue to your existing diary on this device",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(MimoraSpacing.medium))
+                        Button(
+                            onClick = onResumeDiary,
+                            shape = MimoraShapes.full,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text("Open My Diary", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(MimoraSpacing.large))
+            }
+        }
+
         // --- OPTION A: FRESH JOURNAL ---
         item {
             Card(
@@ -204,8 +266,10 @@ fun OnboardingScreen(
 
                     Button(
                         onClick = {
-                            // Every fresh install mints its own unique key here.
-                            viewModel.createFreshJournal(onOnboardingComplete)
+                            // Mint a unique key, then force the save flow before
+                            // the journal is created. Typing cannot begin with a
+                            // phrase the user never copied and confirmed.
+                            viewModel.beginFreshJournalKeySetup()
                         },
                         shape = MimoraShapes.full,
                         modifier = Modifier.fillMaxWidth(),
@@ -434,6 +498,30 @@ fun OnboardingScreen(
                     Text("Cancel")
                 }
             }
+        )
+    }
+
+    // --- MANDATORY 24-WORD SAVE FLOW FOR A NEW DIARY ---
+    if (uiState.showDisclaimerModal) {
+        KeySecurityDisclaimerDialog(
+            remainingSeconds = uiState.disclaimerRemainingSeconds,
+            canProceed = uiState.canProceedDisclaimer,
+            onConfirm = { viewModel.acknowledgeDisclaimerAndRevealKey() },
+            onDismiss = { viewModel.cancelFreshJournalKeySetup() }
+        )
+    }
+
+    if (uiState.showPrivateKeyModal && uiState.recoveryPhraseWords.size == 24) {
+        MasterPrivateKeyDialog(
+            words = uiState.recoveryPhraseWords,
+            hasCopied = uiState.hasCopiedPrivateKey,
+            hasConfirmedSaved = uiState.hasConfirmedSavedOffline,
+            onCopyKey = { viewModel.copyPrivateKey(context) },
+            onToggleConfirmed = { viewModel.setConfirmedSavedOffline(it) },
+            onRegenerate = { viewModel.regenerateFreshJournalKey() },
+            onDismiss = { viewModel.finishFreshJournalSetup(onOnboardingComplete) },
+            confirmLabel = "Create Diary",
+            onCancel = { viewModel.cancelFreshJournalKeySetup() }
         )
     }
 }

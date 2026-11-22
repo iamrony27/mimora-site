@@ -202,6 +202,21 @@ fun MainNavigation(
     val preferences = storedPreferences ?: UserPreferences()
     val preferencesLoaded = storedPreferences != null
 
+    // Logout keeps all local data and the Drive connection. When a lock exists,
+    // reuse the root-level PIN/fingerprint gate before leaving the session.
+    val onLogout: () -> Unit = {
+        if (preferences.appLockEnabled && preferences.pinHash.isNotBlank()) {
+            pendingSecureAction = PendingSecureAction(
+                title = "Confirm logout",
+                message = "Your diary and Google Drive sign-in stay on this device. Verify to log out.",
+                confirmLabel = "Log out",
+                onConfirm = { settingsViewModel.logout() }
+            )
+        } else {
+            settingsViewModel.logout()
+        }
+    }
+
     // The app lock is active only after onboarding, and relocks whenever the app
     // leaves the foreground. Starting locked until preferences arrive prevents a
     // cold start from briefly exposing the diary before the lock is known.
@@ -249,7 +264,17 @@ fun MainNavigation(
             } else if (!preferences.hasCompletedOnboarding) {
                 OnboardingScreen(
                     viewModel = settingsViewModel,
-                    onOnboardingComplete = { navigate(Screen.Home) }
+                    onOnboardingComplete = { navigate(Screen.Home) },
+                    hasExistingJournal = preferences.hasJournal,
+                    // No extra gate here: setting onboarding complete flips
+                    // requiresUnlock back on, so the existing AppUnlockGate
+                    // handles PIN/fingerprint before the diary is shown.
+                    onResumeDiary = {
+                        appScope.launch {
+                            container.preferencesRepository.setCompletedOnboarding(true)
+                        }
+                        navigate(Screen.Home)
+                    }
                 )
             } else {
                 Scaffold(
@@ -316,7 +341,8 @@ fun MainNavigation(
                                 )
                                 Screen.Settings -> SettingsScreen(
                                     viewModel = settingsViewModel,
-                                    topBarActions = topBarActions
+                                    topBarActions = topBarActions,
+                                    onLogout = onLogout
                                 )
                             }
                         }

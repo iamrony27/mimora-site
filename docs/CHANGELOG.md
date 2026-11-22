@@ -1,5 +1,11 @@
 # MIMORA Changelog
 
+## [1.8.2] - 2026-11-22
+
+### Added
+- **Log out from Settings**: a Session card at the bottom of Settings lets you leave the diary session and return to the welcome screen. Your entries and Google Drive sign-in stay on the device. When App Lock is enabled, logout requires your PIN or fingerprint first. A "Welcome Back" card on the welcome screen lets you reopen the existing diary without creating a new key.
+- **Mandatory passphrase save for a new diary**: creating a new journal now forces the 10-second security notice, then requires you to copy the 24-word key and confirm you saved it before the diary is created. The key can be regenerated or the flow cancelled without creating a diary.
+
 ## [1.8.1] - 2026-11-22
 
 ### Fixed

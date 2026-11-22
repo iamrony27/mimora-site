@@ -36,6 +36,8 @@ data class UserPreferences(
     val masterRecoveryPhrase: String = "",
     val hasAcknowledgedKeyWarning: Boolean = false,
     val hasCompletedOnboarding: Boolean = false,
+    /** Set once a journal exists; survives logout and Keystore loss so logout is reversible. */
+    val hasJournal: Boolean = false,
     val googleAccountEmail: String = "",
     val googleDriveConnected: Boolean = false,
     val writingReminderEnabled: Boolean = true,
@@ -61,6 +63,7 @@ class UserPreferencesRepository(
         val MASTER_RECOVERY_PHRASE = stringPreferencesKey("master_recovery_phrase")
         val KEY_WARNING_ACKNOWLEDGED = booleanPreferencesKey("key_warning_acknowledged")
         val HAS_COMPLETED_ONBOARDING = booleanPreferencesKey("has_completed_onboarding")
+        val HAS_JOURNAL = booleanPreferencesKey("has_journal")
         val GOOGLE_ACCOUNT_EMAIL = stringPreferencesKey("google_account_email")
         val GOOGLE_DRIVE_CONNECTED = booleanPreferencesKey("google_drive_connected")
         val WRITING_REMINDER_ENABLED = booleanPreferencesKey("writing_reminder_enabled")
@@ -101,6 +104,7 @@ class UserPreferencesRepository(
             } ?: "",
             hasAcknowledgedKeyWarning = preferences[PreferencesKeys.KEY_WARNING_ACKNOWLEDGED] ?: false,
             hasCompletedOnboarding = preferences[PreferencesKeys.HAS_COMPLETED_ONBOARDING] ?: false,
+            hasJournal = preferences[PreferencesKeys.HAS_JOURNAL] ?: false,
             googleAccountEmail = preferences[PreferencesKeys.GOOGLE_ACCOUNT_EMAIL] ?: "",
             googleDriveConnected = preferences[PreferencesKeys.GOOGLE_DRIVE_CONNECTED] ?: false,
             writingReminderEnabled = preferences[PreferencesKeys.WRITING_REMINDER_ENABLED] ?: true,
@@ -178,6 +182,24 @@ class UserPreferencesRepository(
     suspend fun setCompletedOnboarding(completed: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[PreferencesKeys.HAS_COMPLETED_ONBOARDING] = completed
+            // Completing onboarding always means a journal now exists.
+            if (completed) {
+                preferences[PreferencesKeys.HAS_JOURNAL] = true
+            }
+        }
+    }
+
+    /**
+     * Log out of the current session. The journal still exists on this device,
+     * so HAS_JOURNAL stays set and onboarding can offer a "resume" path. Local
+     * diary data and the Google Drive connection are intentionally untouched.
+     */
+    suspend fun logout() {
+        context.dataStore.edit { preferences ->
+            if (preferences[PreferencesKeys.HAS_COMPLETED_ONBOARDING] == true) {
+                preferences[PreferencesKeys.HAS_JOURNAL] = true
+            }
+            preferences[PreferencesKeys.HAS_COMPLETED_ONBOARDING] = false
         }
     }
 

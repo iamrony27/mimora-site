@@ -88,7 +88,8 @@ import java.time.format.DateTimeFormatter
 fun SettingsScreen(
     viewModel: SettingsViewModel,
     modifier: Modifier = Modifier,
-    topBarActions: @Composable () -> Unit = {}
+    topBarActions: @Composable () -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -96,6 +97,7 @@ fun SettingsScreen(
 
     var showPinDialog by remember { mutableStateOf(false) }
     var showDeveloperNote by remember { mutableStateOf(false) }
+    var showLogoutConfirm by remember { mutableStateOf(false) }
     val fingerprintAvailable = rememberFingerprintAvailable()
 
     // Temporary storage for backup bytes pending user destination selection in SAF
@@ -784,6 +786,51 @@ fun SettingsScreen(
             )
         }
 
+        // --- SESSION / LOGOUT ---
+        item {
+            Card(
+                shape = MimoraShapes.card,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLowest
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(MimoraSpacing.large)) {
+                    Text(
+                        text = "Session",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(MimoraSpacing.small))
+                    Text(
+                        text = "Return to the welcome screen to create or restore a diary. Your entries stay on this device and Google Drive remains connected.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(MimoraSpacing.normal))
+                    OutlinedButton(
+                        onClick = { showLogoutConfirm = true },
+                        shape = MimoraShapes.full,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_logout),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Log out", fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(MimoraSpacing.large))
+        }
+
         // --- STITCH FOOTER ---
         item {
             Box(
@@ -855,6 +902,60 @@ fun SettingsScreen(
         DeveloperNoteDialog(onDismiss = { showDeveloperNote = false })
     }
 
+    // --- LOGOUT CONFIRMATION ---
+    if (showLogoutConfirm) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirm = false },
+            icon = {
+                Icon(
+                    painter = painterResource(R.drawable.ic_logout),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            title = {
+                Text(
+                    text = "Log out of MIMORA?",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = buildString {
+                        append("You will return to the welcome screen to create or restore a diary. ")
+                        append("Your entries stay on this device and Google Drive stays connected. ")
+                        if (prefs.appLockEnabled && prefs.pinHash.isNotBlank()) {
+                            append("You'll be asked for your PIN or fingerprint to confirm.")
+                        }
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutConfirm = false
+                        onLogout()
+                    },
+                    shape = MimoraShapes.full,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Log out")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutConfirm = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     // --- PIN SETUP DIALOG ---
     if (showPinDialog) {
         PinSetupDialog(
@@ -890,7 +991,7 @@ private fun SettingsSectionHeader(title: String) {
  * ensuring the user understands the critical nature of the private master key.
  */
 @Composable
-private fun KeySecurityDisclaimerDialog(
+internal fun KeySecurityDisclaimerDialog(
     remainingSeconds: Int,
     canProceed: Boolean,
     onConfirm: () -> Unit,
@@ -1061,19 +1162,21 @@ private fun SecurityPoint(number: String, text: String) {
  * 24-Word Master Private Key Display Dialog with Copy button and offline save confirmation.
  */
 @Composable
-private fun MasterPrivateKeyDialog(
+internal fun MasterPrivateKeyDialog(
     words: List<String>,
     hasCopied: Boolean,
     hasConfirmedSaved: Boolean,
     onCopyKey: () -> Unit,
     onToggleConfirmed: (Boolean) -> Unit,
     onRegenerate: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    confirmLabel: String = "Done & Sealed",
+    onCancel: (() -> Unit)? = null
 ) {
     var showRegenConfirm by remember { mutableStateOf(false) }
 
     AlertDialog(
-        onDismissRequest = onDismiss,
+        onDismissRequest = { if (onCancel != null) onCancel() else onDismiss() },
         title = {
             Column {
                 Text(
@@ -1191,18 +1294,25 @@ private fun MasterPrivateKeyDialog(
             Button(
                 onClick = onDismiss,
                 shape = MimoraShapes.full,
-                enabled = hasCopied || hasConfirmedSaved,
+                enabled = hasCopied && hasConfirmedSaved,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Done & Sealed")
+                Text(confirmLabel)
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = { showRegenConfirm = true },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Generate New Master Key", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                TextButton(
+                    onClick = { showRegenConfirm = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Generate New Master Key", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                if (onCancel != null) {
+                    TextButton(onClick = onCancel, modifier = Modifier.fillMaxWidth()) {
+                        Text("Back to options", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
             }
         }
     )
