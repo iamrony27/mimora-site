@@ -68,9 +68,6 @@ No account required to write. No tracking. No ads. No central database of your m
 |:---:|:---:|
 | <img src="assets/screenshots/05-statistics.png" width="260" alt="MIMORA statistics" /> | <img src="assets/screenshots/06-settings.png" width="260" alt="MIMORA settings" /> |
 
-| Fullscreen photo preview |
-|:---:|
-| <img src="assets/screenshots/07-photo-preview.png" width="260" alt="MIMORA fullscreen photo preview" /> |
 
 </div>
 
